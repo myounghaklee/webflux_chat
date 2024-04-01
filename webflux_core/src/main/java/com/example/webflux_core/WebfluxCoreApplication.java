@@ -11,6 +11,10 @@ public class WebfluxCoreApplication {
         SpringApplication.run(WebfluxCoreApplication.class, args);
         var publisher = new Publisher();
         publisher.startFlux().subscribe(i-> System.out.println(i));
+
+
+        System.out.println("========MONO=========");
+        publisher.startMono().subscribe(integer -> System.out.println(integer));
     }
 
 }
