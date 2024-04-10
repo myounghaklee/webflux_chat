@@ -21,7 +21,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Mono<User> findByiid(Long id ){
+    public Mono<User> findById(Long id ){
         return userRepository.findById(id);
     }
 
