@@ -11,7 +11,7 @@ public class SampleController {
 
     @GetMapping("sample/hello")
     public Mono<String> getHello(){
-        
+
         return Mono.just("hello rest controller with webflux");
     }
 }
