@@ -16,7 +16,7 @@ public class PostService  {
     private final PostClient postClient;
 
     public Mono<PostResponse> getPostContent(Long id){
-        return postClient.getPost(id);
+        return (Mono<PostResponse>) postClient.getPost(id);
     }
 
     public Flux<PostResponse> getMultiplePostContent(List<Long> idList) {
