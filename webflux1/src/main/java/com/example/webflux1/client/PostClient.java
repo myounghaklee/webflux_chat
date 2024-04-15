@@ -1,5 +1,6 @@
 package com.example.webflux1.client;
 
+import com.example.webflux1.dto.PostResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -18,9 +19,9 @@ public class PostClient {
                 .buildAndExpand()
                 .toUriString();
 
-        webClient.get()
+        return webClient.get()
                 .uri(uriString)
                 .retrieve()
-                .bodyToMono();
+                .bodyToMono(PostResponse.class);
     }
 }
