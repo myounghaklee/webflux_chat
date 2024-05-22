@@ -1,5 +1,6 @@
 package com.fastcampus.flow.service;
 
+import com.fastcampus.flow.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -12,18 +13,36 @@ import java.time.Instant;
 public class UserQueueService {
 
     private final ReactiveRedisTemplate<String, String> reactiveRedisTemplate;
+    private final String USER_QUEUE_WATI_KEY = "users:queue:%s:wait";
+    private final String USER_QUEUE_PROCEED_KEY = "users:queue:%s:proceed";
 
     //대기열 등록
-    public Mono<Long> registerWaitQueue(final Long userId) {
+    public Mono<Long> registerWaitQueue(final String queue, final Long userId) {
         //redis sortedset
         //-key : userId
         // - value : unix timestamp
         var unixTimeStamp = Instant.now().getEpochSecond();
-        return reactiveRedisTemplate.opsForZSet().add("user-queue", userId.toString(), unixTimeStamp)
+        return reactiveRedisTemplate.opsForZSet().add(USER_QUEUE_WATI_KEY.formatted(queue), userId.toString(), unixTimeStamp)
                 .filter(i -> i)
-                .switchIfEmpty(Mono.error(new Exception("already register user...")))
+                .switchIfEmpty(Mono.error(ErrorCode.QUEUE_ALREADY_REGISTERD_USER.build()))
                 .flatMap(i -> reactiveRedisTemplate.opsForZSet().rank("user-queue", userId.toString()))
                 .map(i -> i >= 0 ? i + 1 : i);
 
     }
+
+    public Mono<Long> allowUser(final String queue, final Long count){
+        //진입 허용단계
+        //1. wait queue 사용자 제거
+        //2. proceed queue 사용자들 추가
+        return reactiveRedisTemplate.opsForZSet().popMin(USER_QUEUE_WATI_KEY.formatted(queue), count)
+                .flatMap(member -> reactiveRedisTemplate.opsForZSet().add(USER_QUEUE_PROCEED_KEY.formatted(queue),
+                        member.getValue(), Instant.now().getEpochSecond()))
+                .count();
+    }
+
+    public Mono<Boolean> isAllowed(final String queue, final Long userId){
+        return reactiveRedisTemplate.opsForZSet().rank(USER_QUEUE_PROCEED_KEY.formatted(queue), userId.toString())
+                .defaultIfEmpty(-1L).map(rank -> rank>=0);
+    }
+
 }
