@@ -1,1 +1,2 @@
 rootProject.name = 'demo'
+include("coupon-core", "coupon-api", "coupon-consumer")

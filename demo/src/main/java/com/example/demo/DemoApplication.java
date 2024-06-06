@@ -1,13 +1,13 @@
-package com.example.couponcore;
+package com.example.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CouponCoreApplication {
+public class DemoApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CouponCoreApplication.class, args);
+        SpringApplication.run(DemoApplication.class, args);
     }
 
 }
